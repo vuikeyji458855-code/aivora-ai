@@ -58,10 +58,12 @@ export default async function handler(req, res) {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error(data);
-      return res.status(502).json({
-        error: "Gemini API request failed"
-      });
+  console.error("Gemini error:", response.status, data);
+
+  return res.status(502).json({
+    error: data?.error?.message || "Gemini API request failed",
+    googleStatus: response.status
+  });
     }
 
     const reply = data.candidates?.[0]?.content?.parts
