@@ -587,16 +587,17 @@ async function sendMessage(){
  showTyping();
 
  try{
-  const formData=new FormData();
-  formData.append("message",text);
-
-  // Future backend will receive image and text.
-  if(image)formData.append("image",image);
-
-  const response=await fetch("/api/chat",{
-   method:"POST",
-   body:formData
-  });
+  
+const response = await fetch("/api/chat", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    message: text
+  })
+});
+                             
 
   const data=await response.json();
 
