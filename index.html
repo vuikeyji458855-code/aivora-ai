@@ -1,0 +1,659 @@
+
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="theme-color" content="#080b14">
+<title>AIVORA AI</title>
+
+<style>
+:root{
+ --bg:#080b14;
+ --side:#0d1220;
+ --panel:#111a2b;
+ --panel2:#172238;
+ --border:#26344d;
+ --text:#f4f7ff;
+ --muted:#8c9bb5;
+ --blue:#438cff;
+ --purple:#9b6bff;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+ background:var(--bg);
+ color:var(--text);
+ font-family:Inter,system-ui,Arial,sans-serif;
+ height:100dvh;overflow:hidden;
+}
+button{font:inherit;cursor:pointer;color:inherit}
+.app{display:flex;height:100dvh;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{
+ width:270px;flex-shrink:0;
+ background:var(--side);
+ border-right:1px solid var(--border);
+ display:flex;flex-direction:column;
+ padding:19px 15px;
+ transition:.25s;z-index:10;
+}
+.brand{
+ display:flex;align-items:center;gap:11px;
+ padding:5px 7px 25px;
+}
+.brand-logo{
+ width:41px;height:41px;border-radius:14px;
+ display:grid;place-items:center;font-size:23px;
+ background:linear-gradient(135deg,#278aff,#975dff);
+ box-shadow:0 0 30px #448bff44;
+}
+.brand-name{font-size:20px;font-weight:850;letter-spacing:.4px}
+.brand-name span{color:#73aaff}
+.brand-sub{font-size:10px;color:var(--muted);margin-top:2px}
+.new-chat{
+ width:100%;padding:13px 14px;
+ border:1px solid #35496b;
+ border-radius:12px;background:#18243a;
+ text-align:left;font-size:13px;font-weight:650;
+}
+.new-chat:hover{background:#203553}
+.side-heading{
+ color:#697b99;font-size:10px;
+ letter-spacing:1.4px;font-weight:800;
+ margin:27px 8px 12px;
+}
+.history{flex:1;overflow-y:auto}
+.history-item{
+ padding:11px 10px;border-radius:9px;
+ font-size:12px;color:#a9b7ce;
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+ cursor:pointer;
+}
+.history-item:hover,.history-item.active{
+ background:#19263b;color:white;
+}
+.side-bottom{border-top:1px solid var(--border);padding-top:13px}
+.profile{display:flex;align-items:center;gap:10px;padding:8px}
+.avatar{
+ width:36px;height:36px;border-radius:12px;
+ display:grid;place-items:center;
+ background:linear-gradient(135deg,#398aff,#9760ff);
+ font-weight:800;
+}
+.profile-info b{font-size:12px}
+.profile-info small{display:block;color:var(--muted);font-size:10px;margin-top:3px}
+
+/* MAIN */
+.main{flex:1;min-width:0;display:flex;flex-direction:column;position:relative}
+.topbar{
+ height:65px;flex-shrink:0;
+ display:flex;align-items:center;justify-content:space-between;
+ padding:0 23px;background:#0a0e19;
+ border-bottom:1px solid var(--border);
+}
+.top-left,.top-right{display:flex;align-items:center;gap:12px}
+.top-title{font-size:14px;font-weight:750}
+.model-tag{
+ font-size:10px;color:#9bc5ff;
+ padding:6px 10px;border-radius:30px;
+ background:#182a46;border:1px solid #2b4264;
+}
+.icon-btn{
+ width:37px;height:37px;border-radius:10px;
+ background:#121b2c;border:1px solid var(--border);
+ font-size:16px;
+}
+.icon-btn:hover{border-color:#639bff}
+.mobile-menu{display:none}
+
+/* CHAT */
+.chat-area{
+ flex:1;overflow-y:auto;
+ padding:25px 18px 180px;
+ scroll-behavior:smooth;
+}
+.welcome{
+ max-width:760px;margin:7vh auto 0;text-align:center;
+}
+.hero-icon{
+ width:73px;height:73px;margin:0 auto 24px;
+ border-radius:24px;display:grid;place-items:center;
+ font-size:36px;
+ background:linear-gradient(135deg,#278bff,#9b5eff);
+ box-shadow:0 0 60px #4589ff3d;
+}
+.welcome h1{
+ font-size:clamp(28px,5vw,43px);
+ font-weight:800;letter-spacing:-1.6px;
+ margin-bottom:14px;
+}
+.gradient{
+ background:linear-gradient(90deg,#56b8ff,#9e83ff);
+ color:transparent;background-clip:text;
+}
+.welcome p{color:var(--muted);font-size:13px;line-height:1.9}
+.suggestions{
+ display:grid;grid-template-columns:1fr 1fr;
+ gap:12px;margin-top:38px;text-align:left;
+}
+.suggestion{
+ background:linear-gradient(145deg,#121d30,#101726);
+ border:1px solid var(--border);
+ border-radius:15px;padding:17px;
+ cursor:pointer;transition:.2s;
+}
+.suggestion:hover{border-color:#548cff;transform:translateY(-2px)}
+.s-icon{font-size:20px;margin-bottom:12px;color:#83b7ff}
+.suggestion b{display:block;font-size:13px;margin-bottom:6px}
+.suggestion small{color:var(--muted);font-size:11px;line-height:1.6}
+
+/* MESSAGE */
+.messages{
+ max-width:790px;margin:auto;
+ display:flex;flex-direction:column;gap:25px;
+}
+.message{display:flex;align-items:flex-start;gap:12px}
+.message.user{justify-content:flex-end}
+.message-avatar{
+ width:33px;height:33px;flex-shrink:0;
+ display:grid;place-items:center;border-radius:11px;
+ background:linear-gradient(135deg,#328cff,#9363ff);
+}
+.message-content{
+ max-width:85%;font-size:14px;
+ line-height:1.85;color:#e2e9f6;
+ overflow-wrap:anywhere;white-space:pre-wrap;
+}
+.user-bubble{
+ background:#1a2a44;border:1px solid #304a70;
+ border-radius:17px 17px 4px 17px;
+ padding:12px 16px;
+}
+.message-image{
+ display:block;max-width:220px;max-height:200px;
+ border-radius:12px;margin-top:8px;
+}
+.actions{display:flex;gap:12px;margin-top:8px}
+.actions button{
+ background:transparent;border:0;
+ color:#8394b1;font-size:11px;
+}
+.actions button:hover{color:white}
+.typing{color:#91baff;font-size:13px}
+.dots{display:inline-flex;gap:4px;margin-left:6px}
+.dots i{
+ width:5px;height:5px;border-radius:50%;
+ background:#83b7ff;animation:blink .8s infinite alternate;
+}
+.dots i:nth-child(2){animation-delay:.2s}
+.dots i:nth-child(3){animation-delay:.4s}
+@keyframes blink{to{opacity:.2;transform:translateY(-3px)}}
+
+/* COMPOSER */
+.composer-wrap{
+ position:absolute;bottom:0;left:0;right:0;
+ padding:20px 18px 13px;
+ background:linear-gradient(transparent,#080b14 24%);
+}
+.composer{
+ max-width:790px;margin:auto;
+ background:#121c2d;border:1px solid #354762;
+ border-radius:20px;padding:11px 12px;
+ box-shadow:0 15px 50px #0006;
+}
+.composer:focus-within{border-color:#4c91ff}
+textarea{
+ display:block;width:100%;min-height:42px;max-height:130px;
+ resize:none;background:transparent;border:0;outline:0;
+ color:white;font:14px Arial;padding:11px 8px;
+}
+textarea::placeholder{color:#8392aa}
+.composer-tools{
+ display:flex;align-items:center;justify-content:space-between;
+ padding:5px 3px 1px;
+}
+.tool-group{display:flex;align-items:center;gap:7px}
+.tool{
+ background:#18263b;border:1px solid #2b3e5a;
+ color:#aebdd3;padding:8px 10px;
+ border-radius:9px;font-size:11px;
+}
+.tool:hover{color:white;border-color:#5795ff}
+.send{
+ width:39px;height:39px;border:0;border-radius:12px;
+ background:linear-gradient(135deg,#438eff,#805dff);
+ font-size:20px;font-weight:bold;
+}
+.send:disabled{opacity:.4}
+.disclaimer{
+ text-align:center;color:#65748c;
+ font-size:10px;margin-top:11px;
+}
+.preview{
+ display:none;align-items:center;gap:10px;
+ padding:5px 8px 12px;
+}
+.preview img{width:50px;height:50px;object-fit:cover;border-radius:9px}
+.preview button{
+ background:#29374c;border:0;border-radius:8px;padding:5px 9px;
+}
+
+/* MOBILE */
+@media(max-width:720px){
+ .sidebar{
+  position:absolute;left:0;top:0;bottom:0;
+  transform:translateX(-110%);
+  box-shadow:15px 0 45px #0009;
+ }
+ .sidebar.open{transform:translateX(0)}
+ .mobile-menu{display:block}
+ .topbar{padding:0 12px}
+ .chat-area{padding:20px 13px 170px}
+ .welcome{margin-top:9vh}
+ .suggestions{gap:9px}
+ .suggestion{padding:13px}
+ .composer-wrap{padding:12px 10px}
+ .message-content{max-width:90%}
+}
+@media(max-width:370px){
+ .suggestions{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<aside class="sidebar" id="sidebar">
+ <div class="brand">
+  <div class="brand-logo">✦</div>
+  <div>
+   <div class="brand-name">AIVORA <span>AI</span></div>
+   <div class="brand-sub">YOUR INTELLIGENT ASSISTANT</div>
+  </div>
+ </div>
+
+ <button class="new-chat" onclick="newChat()">＋ &nbsp; New Chat</button>
+
+ <div class="side-heading">RECENT CONVERSATIONS</div>
+ <div class="history" id="history"></div>
+
+ <div class="side-bottom">
+  <div class="profile">
+   <div class="avatar">A</div>
+   <div class="profile-info">
+    <b>AIVORA User</b>
+    <small>Personal workspace</small>
+   </div>
+  </div>
+ </div>
+</aside>
+
+<section class="main">
+
+ <header class="topbar">
+  <div class="top-left">
+   <button class="icon-btn mobile-menu" onclick="toggleSidebar()">☰</button>
+   <div class="top-title">AIVORA AI</div>
+   <span class="model-tag">✦ AI Assistant</span>
+  </div>
+  <div class="top-right">
+   <button class="icon-btn" onclick="toggleLanguage()" title="Language">文</button>
+   <button class="icon-btn" onclick="newChat()" title="New Chat">＋</button>
+  </div>
+ </header>
+
+ <main class="chat-area" id="chatArea">
+
+  <section class="welcome" id="welcome">
+   <div class="hero-icon">✦</div>
+   <h1 id="welcomeTitle">Hello, <span class="gradient">I'm AIVORA.</span></h1>
+   <p id="welcomeText">
+    आपका AI साथी, आपके हर सवाल और नए विचार के लिए।<br>
+    Ask anything. Explore everything.
+   </p>
+
+   <div class="suggestions">
+    <div class="suggestion" onclick="suggest('मुझे विज्ञान आसान भाषा में समझाओ')">
+     <div class="s-icon">✧</div>
+     <b>Learn Something</b>
+     <small>नई चीजें आसान भाषा में सीखें</small>
+    </div>
+    <div class="suggestion" onclick="suggest('एक शानदार कहानी लिखो')">
+     <div class="s-icon">✎</div>
+     <b>Creative Writing</b>
+     <small>कहानियाँ और नए विचार बनाएँ</small>
+    </div>
+    <div class="suggestion" onclick="suggest('एक वेबसाइट बनाने में मेरी मदद करो')">
+     <div class="s-icon">⌘</div>
+     <b>Coding Assistant</b>
+     <small>कोडिंग और प्रोग्रामिंग में मदद</small>
+    </div>
+    <div class="suggestion" onclick="suggest('भारत का इतिहास बताओ')">
+     <div class="s-icon">◈</div>
+     <b>Explore Knowledge</b>
+     <small>ज्ञान और जानकारी प्राप्त करें</small>
+    </div>
+   </div>
+  </section>
+
+  <div class="messages" id="messages"></div>
+ </main>
+
+ <div class="composer-wrap">
+  <div class="composer">
+
+   <div class="preview" id="preview">
+    <img id="previewImg" alt="Selected image">
+    <span id="previewName" style="font-size:11px;color:#a9caff"></span>
+    <button onclick="removeImage()">✕</button>
+   </div>
+
+   <textarea id="prompt" rows="1"
+    placeholder="Message AIVORA AI..."></textarea>
+
+   <div class="composer-tools">
+    <div class="tool-group">
+     <button class="tool" onclick="document.getElementById('imageInput').click()">＋ Attach</button>
+     <input id="imageInput" type="file" accept="image/*" hidden onchange="selectImage(this)">
+     <button class="tool" onclick="startVoice()" title="Voice input">🎙 Voice</button>
+    </div>
+    <button class="send" id="sendBtn" onclick="sendMessage()">↑</button>
+   </div>
+  </div>
+  <div class="disclaimer">AIVORA AI may make mistakes. Verify important information.</div>
+ </div>
+
+</section>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+
+let conversations=[];
+let currentId=null;
+let selectedImage=null;
+let language="hi";
+let busy=false;
+
+try{
+ conversations=JSON.parse(localStorage.getItem("aivora_chats")||"[]");
+}catch(e){conversations=[]}
+
+function save(){
+ try{
+  localStorage.setItem("aivora_chats",JSON.stringify(conversations));
+ }catch(e){
+  console.warn("Chat storage is full");
+ }
+}
+
+function newChat(){
+ currentId=null;
+ $("messages").innerHTML="";
+ $("welcome").style.display="block";
+ $("prompt").value="";
+ removeImage();
+ renderHistory();
+ $("sidebar").classList.remove("open");
+}
+
+function toggleSidebar(){
+ $("sidebar").classList.toggle("open");
+}
+
+function toggleLanguage(){
+ language=language==="hi"?"en":"hi";
+ $("welcomeTitle").innerHTML=language==="hi"
+  ?'Hello, <span class="gradient">I\'m AIVORA.</span>'
+  :'Welcome, <span class="gradient">I\'m AIVORA.</span>';
+ $("welcomeText").innerHTML=language==="hi"
+  ?"आपका AI साथी, आपके हर सवाल और नए विचार के लिए।<br>Ask anything. Explore everything."
+  :"Your intelligent companion for questions and ideas.<br>Ask anything. Explore everything.";
+ $("prompt").placeholder=language==="hi"?"AIVORA से कुछ पूछें...":"Message AIVORA AI...";
+}
+
+function suggest(text){
+ $("prompt").value=text;
+ sendMessage();
+}
+
+function selectImage(input){
+ const file=input.files[0];
+ if(!file)return;
+ if(!file.type.startsWith("image/")){
+  alert("Please select an image.");return;
+ }
+ if(file.size>5*1024*1024){
+  alert("Choose an image under 5 MB.");return;
+ }
+ selectedImage=file;
+ $("previewImg").src=URL.createObjectURL(file);
+ $("previewName").textContent=file.name;
+ $("preview").style.display="flex";
+}
+
+function removeImage(){
+ if(selectedImage){
+  $("previewImg").src="";
+  selectedImage=null;
+ }
+ $("preview").style.display="none";
+ $("imageInput").value="";
+ $("previewName").textContent="";
+}
+
+function addMessage(text,type,imageURL){
+ const item=document.createElement("div");
+ item.className="message "+(type==="user"?"user":"");
+
+ if(type==="assistant"){
+  const avatar=document.createElement("div");
+  avatar.className="message-avatar";
+  avatar.textContent="✦";
+  item.appendChild(avatar);
+ }
+
+ const content=document.createElement("div");
+ content.className="message-content";
+
+ if(type==="user"){
+  const bubble=document.createElement("div");
+  bubble.className="user-bubble";
+  bubble.textContent=text||"इस फोटो को देखिए";
+  if(imageURL){
+   const img=document.createElement("img");
+   img.src=imageURL;
+   img.className="message-image";
+   bubble.appendChild(img);
+  }
+  content.appendChild(bubble);
+ }else{
+  const answer=document.createElement("div");
+  answer.textContent=text;
+  content.appendChild(answer);
+
+  const actions=document.createElement("div");
+  actions.className="actions";
+
+  const copy=document.createElement("button");
+  copy.textContent="▢ Copy";
+  copy.onclick=()=>copyText(text);
+
+  const retry=document.createElement("button");
+  retry.textContent="↻ Regenerate";
+  retry.onclick=()=>regenerate();
+
+  actions.append(copy,retry);
+  content.appendChild(actions);
+ }
+
+ item.appendChild(content);
+ $("messages").appendChild(item);
+ scrollBottom();
+ return item;
+}
+
+function scrollBottom(){
+ $("chatArea").scrollTop=$("chatArea").scrollHeight;
+}
+
+function renderHistory(){
+ const box=$("history");
+ box.innerHTML="";
+ conversations.slice().reverse().forEach(chat=>{
+  const item=document.createElement("div");
+  item.className="history-item"+(chat.id===currentId?" active":"");
+  item.textContent="◦  "+chat.title;
+  item.onclick=()=>openChat(chat.id);
+  box.appendChild(item);
+ });
+}
+
+function openChat(id){
+ const chat=conversations.find(c=>c.id===id);
+ if(!chat)return;
+ currentId=id;
+ $("messages").innerHTML="";
+ $("welcome").style.display="none";
+ chat.messages.forEach(m=>{
+  addMessage(m.text,m.type);
+ });
+ renderHistory();
+ $("sidebar").classList.remove("open");
+}
+
+function showTyping(){
+ const item=document.createElement("div");
+ item.className="message";
+ item.id="typing";
+ item.innerHTML='<div class="message-avatar">✦</div><div class="message-content typing">AIVORA is thinking <span class="dots"><i></i><i></i><i></i></span></div>';
+ $("messages").appendChild(item);
+ scrollBottom();
+}
+
+function copyText(text){
+ if(navigator.clipboard){
+  navigator.clipboard.writeText(text)
+   .then(()=>alert("Copied!"))
+   .catch(()=>alert("Copy not available."));
+ }else{
+  alert("Clipboard not supported in this browser.");
+ }
+}
+
+function regenerate(){
+ if(busy)return;
+ const chat=conversations.find(c=>c.id===currentId);
+ if(!chat||chat.messages.length<2)return;
+ const last=chat.messages.filter(m=>m.type==="user").pop();
+ if(last){
+  $("prompt").value=last.text;
+  sendMessage();
+ }
+}
+
+async function sendMessage(){
+ if(busy)return;
+ const text=$("prompt").value.trim();
+ if(!text&&!selectedImage)return;
+
+ if(!currentId){
+  currentId=Date.now();
+  conversations.push({
+   id:currentId,
+   title:(text||"Image conversation").slice(0,32),
+   messages:[]
+  });
+ }
+
+ const chat=conversations.find(c=>c.id===currentId);
+ const image=selectedImage;
+ const imageURL=image?URL.createObjectURL(image):null;
+
+ $("welcome").style.display="none";
+ addMessage(text,"user",imageURL);
+
+ chat.messages.push({text:text,type:"user"});
+ $("prompt").value="";
+ $("prompt").style.height="42px";
+ removeImage();
+ save();
+ renderHistory();
+
+ busy=true;
+ $("sendBtn").disabled=true;
+ showTyping();
+
+ try{
+  const formData=new FormData();
+  formData.append("message",text);
+
+  // Future backend will receive image and text.
+  if(image)formData.append("image",image);
+
+  const response=await fetch("/api/chat",{
+   method:"POST",
+   body:formData
+  });
+
+  const data=await response.json();
+
+  if(!response.ok){
+   throw new Error(data.error||"API connection failed: "+response.status);
+  }
+
+  const answer=data.reply||data.message;
+  if(!answer)throw new Error("AI response was empty.");
+
+  $("typing")?.remove();
+  addMessage(answer,"assistant");
+  chat.messages.push({text:answer,type:"assistant"});
+  save();
+
+ }catch(error){
+  $("typing")?.remove();
+  const message="AIVORA AI का सर्वर अभी कनेक्ट नहीं है। पहले सुरक्षित Backend /api/chat और AI API कॉन्फ़िगर करें।\n\nError: "+error.message;
+  addMessage(message,"assistant");
+  chat.messages.push({text:message,type:"assistant"});
+  save();
+ }finally{
+  busy=false;
+  $("sendBtn").disabled=false;
+  scrollBottom();
+ }
+}
+
+function startVoice(){
+ const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!Speech){
+  alert("Voice input is not supported in this browser.");
+  return;
+ }
+ const recognition=new Speech();
+ recognition.lang=language==="hi"?"hi-IN":"en-IN";
+ recognition.onresult=e=>{
+  $("prompt").value=e.results[0][0].transcript;
+ };
+ recognition.onerror=()=>alert("Voice input could not start.");
+ recognition.start();
+}
+
+$("prompt").addEventListener("input",()=>{
+ $("prompt").style.height="auto";
+ $("prompt").style.height=Math.min($("prompt").scrollHeight,130)+"px";
+});
+
+$("prompt").addEventListener("keydown",e=>{
+ if(e.key==="Enter"&&!e.shiftKey){
+  e.preventDefault();
+  sendMessage();
+ }
+});
+
+renderHistory();
+</script>
+</body>
+     </html>
+     
