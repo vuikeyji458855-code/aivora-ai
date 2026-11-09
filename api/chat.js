@@ -21,9 +21,7 @@ export default async function handler(req, res) {
     }
     body = body || {};
 
-    // फ्रंटएंड से आने वाले अलग-अलग फॉर्मेट को संभालना
     let contents = [];
-
     if (Array.isArray(body.messages) && body.messages.length > 0) {
       contents = body.messages.slice(-10).map((item) => ({
         role: item.role === "assistant" ? "model" : "user",
@@ -42,13 +40,13 @@ export default async function handler(req, res) {
     }
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           systemInstruction: {
-            parts: [{ text: "You are AIVORA AI, a helpful and intelligent assistant. Answer clearly." }]
+            parts: [{ text: "You are AIVORA AI, a helpful and intelligent assistant. Answer clearly and concisely." }]
           },
           contents,
           generationConfig: {
@@ -75,4 +73,4 @@ export default async function handler(req, res) {
   } catch (err) {
     return res.status(500).json({ error: err.message || "Internal server error" });
   }
-      }
+}
