@@ -599,7 +599,15 @@ const response = await fetch("/api/chat", {
 });
                              
 
-  const data=await response.json();
+  const raw = await response.text();
+
+let data;
+
+try {
+  data = JSON.parse(raw);
+} catch {
+  throw new Error("Server response: " + raw.slice(0, 300));
+}
 
   if(!response.ok){
    throw new Error(data.error||"API connection failed: "+response.status);
