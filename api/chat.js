@@ -7,7 +7,7 @@ export default async function handler(req, res) {
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    return res.status(500).json({ error: "Gemini API key is not configured in Vercel" });
+    return res.status(500).json({ error: "Gemini API key is not configured" });
   }
 
   try {
@@ -21,15 +21,25 @@ export default async function handler(req, res) {
     }
     body = body || {};
 
-    const messages = body.messages;
-    if (!Array.isArray(messages) || messages.length === 0) {
+    // फ्रंटएंड से आने वाले अलग-अलग फॉर्मेट को संभालना
+    let contents = [];
+
+    if (Array.isArray(body.messages) && body.messages.length > 0) {
+      contents = body.messages.slice(-10).map((item) => ({
+        role: item.role === "assistant" ? "model" : "user",
+        parts: [{ text: String(item.text || item.content || "") }]
+      }));
+    } else if (body.message || body.prompt || body.text) {
+      const userText = String(body.message || body.prompt || body.text);
+      contents = [
+        {
+          role: "user",
+          parts: [{ text: userText }]
+        }
+      ];
+    } else {
       return res.status(400).json({ error: "Please send a message" });
     }
-
-    const contents = messages.slice(-10).map((item) => ({
-      role: item.role === "assistant" ? "model" : "user",
-      parts: [{ text: String(item.text || "") }]
-    }));
 
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
@@ -38,7 +48,7 @@ export default async function handler(req, res) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           systemInstruction: {
-            parts: [{ text: "You are AIVORA AI, a helpful and intelligent assistant." }]
+            parts: [{ text: "You are AIVORA AI, a helpful and intelligent assistant. Answer clearly." }]
           },
           contents,
           generationConfig: {
@@ -65,4 +75,4 @@ export default async function handler(req, res) {
   } catch (err) {
     return res.status(500).json({ error: err.message || "Internal server error" });
   }
-}
+      }
